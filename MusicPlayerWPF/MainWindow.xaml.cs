@@ -14,18 +14,32 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.Entity;
+using System.Windows.Threading;
+using System.Windows.Controls.Primitives;
 
 //https://docs.microsoft.com/pl-pl/dotnet/framework/wpf/graphics-multimedia/how-to-control-a-mediaelement-play-pause-stop-volume-and-speed
 namespace MusicPlayerWPF
 {
     public partial class MainWindow : Window
     {
+        DispatcherTimer dispatcherTimer;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
+            dispatcherTimer.Tick += new EventHandler(timer_Tick);
         }
 
+        void timer_Tick(object sender, EventArgs e)
+        {
+            if (!isDragging)
+            {
+                timelineSlider.Value = myMediaElement.Position.TotalSeconds;
+            }
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             //MusicPlayerWPF.Models.Tracks.
@@ -36,8 +50,6 @@ namespace MusicPlayerWPF
             //TagLib.Image.ImageTag image = TagLib.Image.ImageTag(filePath);
 
             System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
-            
-            
             ms.Seek(0, SeekOrigin.Begin);
 
             // ImageSource for System.Windows.Controls.Image
@@ -54,13 +66,7 @@ namespace MusicPlayerWPF
             myMediaElement.Source = new Uri(filePath);
             myMediaElement.Play();
         }
-
-        private void PauseMedia(object sender, RoutedEventArgs e)
-        {
-            myMediaElement.Pause();
-        }
-
-
+      
         // Play the media.
         void OnMouseDownPlayMedia(object sender, MouseButtonEventArgs args)
         {
@@ -94,6 +100,8 @@ namespace MusicPlayerWPF
             // The Stop method stops and resets the media to be played from
             // the beginning.
             myMediaElement.Stop();
+            timelineSlider.Value = 0;
+            dispatcherTimer.Stop();
             ImageStopMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_stop_Yellow.png"));
         }
         private void OnMouseUpStopMedia(object sender, MouseButtonEventArgs e)
@@ -105,32 +113,63 @@ namespace MusicPlayerWPF
         {
             myMediaElement.Volume = (double)volumeSlider.Value;
         }
-
-
         // When the media opens, initialize the "Seek To" slider maximum value
         // to the total number of miliseconds in the length of the media clip.
         private void Element_MediaOpened(object sender, EventArgs e)
         {
-            timelineSlider.Maximum = myMediaElement.NaturalDuration.TimeSpan.TotalMilliseconds;
-        }
+            try
+            {
+                if (myMediaElement.NaturalDuration.HasTimeSpan)
+                {
+                    timelineSlider.Maximum = myMediaElement.NaturalDuration.TimeSpan.TotalSeconds;
+                    timelineSlider.SmallChange = 1;
+                    timelineSlider.LargeChange = Math.Min(10, myMediaElement.NaturalDuration.TimeSpan.Seconds / 10);
 
-        // When the media playback is finished. Stop() the media to seek to media start.
+                    CurrentPosition.Text = String.Format("00:00:00");
+                    Duration.Text = String.Format("{0:00}:{1:00}:{2:00}",
+                        myMediaElement.NaturalDuration.TimeSpan.Hours,
+                        myMediaElement.NaturalDuration.TimeSpan.Minutes,
+                        myMediaElement.NaturalDuration.TimeSpan.Seconds);
+                }
+                dispatcherTimer.Start();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
         private void Element_MediaEnded(object sender, EventArgs e)
         {
+            dispatcherTimer.Stop();
             myMediaElement.Stop();
+            timelineSlider.Value = 0;
         }
 
-        // Jump to different parts of the media (seek to). 
-        private void SeekToMediaPosition(object sender, RoutedPropertyChangedEventArgs<double> args)
+        bool isDragging = false;
+
+        private void sliderPosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            int SliderValue = (int)timelineSlider.Value;
-
-            // Overloaded constructor takes the arguments days, hours, minutes, seconds, miniseconds.
-            // Create a TimeSpan with miliseconds equal to the slider value.
-            TimeSpan ts = new TimeSpan(0, 0, 0, 0, SliderValue);
-            myMediaElement.Position = ts;
+            TimeSpan ts = TimeSpan.FromSeconds(e.NewValue);
+            CurrentPosition.Text =
+                String.Format("{0:00}:{1:00}:{2:00}",
+                ts.Hours, ts.Minutes, ts.Seconds);
         }
 
+        private void sliderPosition_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            isDragging = true;
+        }
+
+        private void sliderPosition_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            isDragging = false;
+            myMediaElement.Position = TimeSpan.FromSeconds(timelineSlider.Value);
+            ////int SliderValue = (int)timelineSlider.Value;
+            ////// Overloaded constructor takes the arguments days, hours, minutes, seconds, miniseconds.
+            ////// Create a TimeSpan with miliseconds equal to the slider value.
+            ////TimeSpan ts = new TimeSpan(0, 0, 0, 0, SliderValue);
+            ////myMediaElement.Position = ts;
+        }
         void InitializePropertyValues()
         {
             // Set the media's starting Volume and SpeedRatio to the current value of the

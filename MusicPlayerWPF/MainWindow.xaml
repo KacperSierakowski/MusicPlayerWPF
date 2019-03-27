@@ -15,14 +15,23 @@
        Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="130,321,592,80"/>
         <Grid Margin="10,156,513,103" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-            <Slider x:Name="timelineSlider" Margin="0,132,0,0" ValueChanged="SeekToMediaPosition" Width="269" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Slider x:Name="timelineSlider" Margin="0,132,0,0" 
+                    ValueChanged="sliderPosition_ValueChanged"
+                    Thumb.DragStarted="sliderPosition_DragStarted"
+                    Thumb.DragCompleted="sliderPosition_DragCompleted" Width="269" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <Grid Margin="67,0,65,33" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Image x:Name="TrackCover" Height="100" Margin="0,0,0,27" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
             </Grid>
         </Grid>
+        <TextBlock Name="CurrentPosition"
+                       Grid.Column="0"
+                       Margin="224,349,522,54"
+                       VerticalAlignment="Center" Foreground="Red">00:00:00</TextBlock>
+        <TextBlock Name="Duration"
+                       Margin="224,370,522,33"
+                       VerticalAlignment="Center" Foreground="Red">00:00:00</TextBlock>
 
-        <Button Content="Pause" Click="PauseMedia" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="31,0,0,0"/>
         <Button Content="Play" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="Button_Click"/>
         <Image x:Name="ImagePlayMedia" Source="Images/UI_play.png"  MouseUp="OnMouseUpPlayMedia" MouseDown="OnMouseDownPlayMedia"  Stretch="Uniform"  Margin="89,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
         <Image x:Name="ImagePauseMedia" Source="Images/UI_pause.png" MouseUp="OnMouseUpPauseMedia" MouseDown="OnMouseDownPauseMedia" Stretch="Uniform"  Margin="47,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
