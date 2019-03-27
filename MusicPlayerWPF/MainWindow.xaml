@@ -5,8 +5,33 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicPlayerWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" Background="Black">
     <Grid>
-        
+
+        <MediaElement Source="media\numbers.wmv" x:Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill" 
+     MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" Margin="496,10,18,273"/>
+        <TextBlock Foreground="White" Margin="87,0,662,80" Height="18" VerticalAlignment="Bottom"  ><Run Text="Volume"/></TextBlock>
+        <Slider x:Name="volumeSlider" VerticalAlignment="Center" ValueChanged="ChangeMediaVolume" 
+       Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="130,321,592,80"/>
+        <Grid Margin="10,156,513,103" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <Slider x:Name="timelineSlider" Margin="0,132,0,0" ValueChanged="SeekToMediaPosition" Width="269" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Grid Margin="67,0,65,33" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Image x:Name="TrackCover" Height="100" Margin="0,0,0,27" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            </Grid>
+        </Grid>
+
+        <Button Content="Pause" Click="PauseMedia" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="31,0,0,0"/>
+        <Button Content="Play" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="Button_Click"/>
+        <Image x:Name="ImagePlayMedia" Source="Images/UI_play.png"  MouseUp="OnMouseUpPlayMedia" MouseDown="OnMouseDownPlayMedia"  Stretch="Uniform"  Margin="89,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
+        <Image x:Name="ImagePauseMedia" Source="Images/UI_pause.png" MouseUp="OnMouseUpPauseMedia" MouseDown="OnMouseDownPauseMedia" Stretch="Uniform"  Margin="47,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
+        <Image x:Name="ImageStopMedia" Source="Images/UI_stop.png"  MouseUp="OnMouseUpStopMedia" MouseDown="OnMouseDownStopMedia"  Stretch="Uniform"  Margin="5,0,0,25"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
+        <Button VerticalAlignment="Top" HorizontalAlignment="Left" Height="120" Margin="337,156,0,0" Width="102">
+            <StackPanel>
+                <Image Source="Images/UI_play.png"/>
+                <TextBlock>Disconnect from Server</TextBlock>
+            </StackPanel>
+        </Button>
     </Grid>
 </Window>
