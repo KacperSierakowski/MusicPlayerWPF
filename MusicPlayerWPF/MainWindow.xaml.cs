@@ -23,16 +23,22 @@ namespace MusicPlayerWPF
     public partial class MainWindow : Window
     {
         DispatcherTimer dispatcherTimer;
-
+        private Double SliderCurrentPosition = 0;
+        bool isDragging = false;
         public MainWindow()
         {
             InitializeComponent();
-
-            dispatcherTimer = new DispatcherTimer();
-            dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
-            dispatcherTimer.Tick += new EventHandler(timer_Tick);
+            try
+            {
+                dispatcherTimer = new DispatcherTimer();
+                dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
+                dispatcherTimer.Tick += new EventHandler(timer_Tick);
+            }
+            catch (Exception ee)
+            {
+                string ErrorTimer = ee.Data.ToString();
+            }
         }
-
         void timer_Tick(object sender, EventArgs e)
         {
             if (!isDragging)
@@ -45,24 +51,28 @@ namespace MusicPlayerWPF
             //MusicPlayerWPF.Models.Tracks.
             string filePath = "O:/Pas Oriona/Magiczne Brzemia/Nowy folder (13)/21 Savage - a lot ft. J. Cole.mp3";
             TagLib.File tagFile = TagLib.File.Create(filePath);
-            MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
-            //tagFile.Tag.Pictures[0].Data.Data;
-            //TagLib.Image.ImageTag image = TagLib.Image.ImageTag(filePath);
-
-            System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
-            ms.Seek(0, SeekOrigin.Begin);
-
-            // ImageSource for System.Windows.Controls.Image
-            BitmapImage bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.StreamSource = ms;
-            bitmap.EndInit();
-
-            // Create a System.Windows.Controls.Image control
-            System.Windows.Controls.Image img = new System.Windows.Controls.Image();
-            img.Source = bitmap;
-            TrackCover.Source = img.Source;
-
+            try
+            {
+                MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
+                //tagFile.Tag.Pictures[0].Data.Data;
+                //TagLib.Image.ImageTag image = TagLib.Image.ImageTag(filePath);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                // ImageSource for System.Windows.Controls.Image
+                BitmapImage bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.StreamSource = ms;
+                bitmap.EndInit();
+                // Create a System.Windows.Controls.Image control
+                System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+                img.Source = bitmap;
+                TrackCover.Source = img.Source;
+            }
+            catch(Exception ee)
+            {
+                string errorNoCover=ee.Data.ToString();
+                TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
+            }
             myMediaElement.Source = new Uri(filePath);
             myMediaElement.Play();
         }
@@ -99,10 +109,13 @@ namespace MusicPlayerWPF
         {
             // The Stop method stops and resets the media to be played from
             // the beginning.
+            dispatcherTimer.Stop();
             myMediaElement.Stop();
             timelineSlider.Value = 0;
-            dispatcherTimer.Stop();
+            myMediaElement.Source = null;
+            TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
             ImageStopMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_stop_Yellow.png"));
+            Button_Click(sender,args);
         }
         private void OnMouseUpStopMedia(object sender, MouseButtonEventArgs e)
         {
@@ -122,9 +135,8 @@ namespace MusicPlayerWPF
                 if (myMediaElement.NaturalDuration.HasTimeSpan)
                 {
                     timelineSlider.Maximum = myMediaElement.NaturalDuration.TimeSpan.TotalSeconds;
-                    timelineSlider.SmallChange = 1;
-                    timelineSlider.LargeChange = Math.Min(10, myMediaElement.NaturalDuration.TimeSpan.Seconds / 10);
-
+                    //timelineSlider.SmallChange = 1;
+                    //timelineSlider.LargeChange = Math.Min(10, myMediaElement.NaturalDuration.TimeSpan.Seconds / 10);
                     CurrentPosition.Text = String.Format("00:00:00");
                     Duration.Text = String.Format("{0:00}:{1:00}:{2:00}",
                         myMediaElement.NaturalDuration.TimeSpan.Hours,
@@ -142,10 +154,11 @@ namespace MusicPlayerWPF
         {
             dispatcherTimer.Stop();
             myMediaElement.Stop();
+            myMediaElement.Source = null;
             timelineSlider.Value = 0;
+            TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
         }
 
-        bool isDragging = false;
 
         private void sliderPosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -176,7 +189,75 @@ namespace MusicPlayerWPF
             // their respective slider controls.
             myMediaElement.Volume = (double)volumeSlider.Value;
         }
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            try
+            {
+                String[] FileName = (String[])e.Data.GetData(DataFormats.FileDrop, true);
 
+                if (FileName.Length > 0)
+                {
+                    String FilePath = FileName[0].ToString();
+
+                    if (CheckMP3Extension(FilePath))
+                    {
+                        TagLib.File tagFile = TagLib.File.Create(FilePath);
+                        try
+                        {
+                            MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
+                            System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
+                            ms.Seek(0, SeekOrigin.Begin);
+                            BitmapImage bitmap = new BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.StreamSource = ms;
+                            bitmap.EndInit();
+                            // Create a System.Windows.Controls.Image control
+                            System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+                            img.Source = bitmap;
+                            TrackCover.Source = img.Source;
+                        }
+                        catch (Exception ee)
+                        {
+                            string errorNoCover = ee.Data.ToString();
+                            TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
+                        }
+                        myMediaElement.Source = new Uri(FilePath);
+                        myMediaElement.Play();
+                        
+                    }
+                    else
+                    {
+                        MessageBox.Show("you are choose wrong file");
+                    }
+                }
+                e.Handled = true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        private Boolean CheckMP3Extension(String FilePath)
+        {
+            Boolean Flag = false;
+            try
+            {
+                String Extension = System.IO.Path.GetExtension(FilePath);
+
+                if (Extension != String.Empty)
+                {
+                    if (Extension == ".mp3")
+                    {
+                        Flag = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Flag;
+        }
 
     }
 }

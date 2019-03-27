@@ -10,37 +10,27 @@
 
         <MediaElement Source="media\numbers.wmv" x:Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill" 
      MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" Margin="496,10,18,273"/>
-        <TextBlock Foreground="White" Margin="87,0,662,80" Height="18" VerticalAlignment="Bottom"  ><Run Text="Volume"/></TextBlock>
-        <Slider x:Name="volumeSlider" VerticalAlignment="Center" ValueChanged="ChangeMediaVolume" 
-       Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="130,321,592,80"/>
-        <Grid Margin="10,156,513,103" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Foreground="White" Margin="147,0,602,48" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left"  ><Run Text="Volume"/></TextBlock>
+        <Slider x:Name="volumeSlider" VerticalAlignment="Bottom" ValueChanged="ChangeMediaVolume" 
+       Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="140,376,582,25" HorizontalAlignment="Left"/>
+        <Image x:Name="TrackCover" Height="250" Margin="18,0,0,135" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="250"/>
 
-            <Slider x:Name="timelineSlider" Margin="0,132,0,0" 
+        <TextBlock Name="CurrentPosition"
+                       Margin="5,0,0,107"
+                       VerticalAlignment="Bottom" Foreground="Red" Height="25" HorizontalAlignment="Left">00:00:00</TextBlock>
+        <TextBlock Name="Duration"
+                       Margin="237,0,0,107"
+                       VerticalAlignment="Bottom" Foreground="Red" Height="25" HorizontalAlignment="Left">00:00:00</TextBlock>
+
+
+        <Slider x:Name="timelineSlider" Margin="5,0,0,77" 
                     ValueChanged="sliderPosition_ValueChanged"
                     Thumb.DragStarted="sliderPosition_DragStarted"
-                    Thumb.DragCompleted="sliderPosition_DragCompleted" Width="269" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            <Grid Margin="67,0,65,33" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Image x:Name="TrackCover" Height="100" Margin="0,0,0,27" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
-            </Grid>
-        </Grid>
-        <TextBlock Name="CurrentPosition"
-                       Grid.Column="0"
-                       Margin="224,349,522,54"
-                       VerticalAlignment="Center" Foreground="Red">00:00:00</TextBlock>
-        <TextBlock Name="Duration"
-                       Margin="224,370,522,33"
-                       VerticalAlignment="Center" Foreground="Red">00:00:00</TextBlock>
-
+                    Thumb.DragCompleted="sliderPosition_DragCompleted" Width="276" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
         <Button Content="Play" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="Button_Click"/>
         <Image x:Name="ImagePlayMedia" Source="Images/UI_play.png"  MouseUp="OnMouseUpPlayMedia" MouseDown="OnMouseDownPlayMedia"  Stretch="Uniform"  Margin="89,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
         <Image x:Name="ImagePauseMedia" Source="Images/UI_pause.png" MouseUp="OnMouseUpPauseMedia" MouseDown="OnMouseDownPauseMedia" Stretch="Uniform"  Margin="47,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
         <Image x:Name="ImageStopMedia" Source="Images/UI_stop.png"  MouseUp="OnMouseUpStopMedia" MouseDown="OnMouseDownStopMedia"  Stretch="Uniform"  Margin="5,0,0,25"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
-        <Button VerticalAlignment="Top" HorizontalAlignment="Left" Height="120" Margin="337,156,0,0" Width="102">
-            <StackPanel>
-                <Image Source="Images/UI_play.png"/>
-                <TextBlock>Disconnect from Server</TextBlock>
-            </StackPanel>
-        </Button>
+        <TextBlock x:Name="DropTextBlock" Drop="Window_Drop" AllowDrop="true" HorizontalAlignment="Left" Margin="339,157,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="109" Width="81" Background="Red" Foreground="Black"/>
     </Grid>
 </Window>
