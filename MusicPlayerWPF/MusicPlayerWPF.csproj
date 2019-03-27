@@ -158,6 +158,9 @@
     <Resource Include="Images\UI_stop_Yellow.png" />
     <Resource Include="Images\UI_pause_Yellow.png" />
     <Resource Include="Images\TrackCoverUknown.png" />
+    <Resource Include="Images\UI_replay.png" />
+    <Resource Include="Images\UI_replay_Yellow.png" />
+    <Resource Include="Images\UI_upload.png" />
     <Content Include="Models\MusicPlayerModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MusicPlayerModel.Context.cs</LastGenOutput>
