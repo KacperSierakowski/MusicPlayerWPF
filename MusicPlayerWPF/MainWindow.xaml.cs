@@ -16,7 +16,7 @@ using System.Windows.Shapes;
 using System.Data.Entity;
 using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
-
+//Icons from https://www.flaticon.com/free-icon/pencil-edit-button_61456
 //https://docs.microsoft.com/pl-pl/dotnet/framework/wpf/graphics-multimedia/how-to-control-a-mediaelement-play-pause-stop-volume-and-speed
 namespace MusicPlayerWPF
 {
@@ -24,6 +24,8 @@ namespace MusicPlayerWPF
     {
         DispatcherTimer dispatcherTimer;
         bool isDragging = false;
+        String[] FileName;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -35,7 +37,7 @@ namespace MusicPlayerWPF
             }
             catch (Exception ee)
             {
-                string ErrorTimer = ee.Data.ToString();
+                string ErrorTimer = "Timmer:" + ee.Data.ToString();
             }
         }
         void timer_Tick(object sender, EventArgs e)
@@ -45,69 +47,40 @@ namespace MusicPlayerWPF
                 timelineSlider.Value = myMediaElement.Position.TotalSeconds;
             }
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //MusicPlayerWPF.Models.Tracks.
-            string filePath = "O:/Pas Oriona/Magiczne Brzemia/Nowy folder (13)/21 Savage - a lot ft. J. Cole.mp3";
-            TagLib.File tagFile = TagLib.File.Create(filePath);
-            try
-            {
-                MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
-                //tagFile.Tag.Pictures[0].Data.Data;
-                //TagLib.Image.ImageTag image = TagLib.Image.ImageTag(filePath);
-                System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
-                ms.Seek(0, SeekOrigin.Begin);
-                // ImageSource for System.Windows.Controls.Image
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.StreamSource = ms;
-                bitmap.EndInit();
-                // Create a System.Windows.Controls.Image control
-                System.Windows.Controls.Image img = new System.Windows.Controls.Image();
-                img.Source = bitmap;
-                TrackCover.Source = img.Source;
-            }
-            catch (Exception ee)
-            {
-                string errorNoCover = ee.Data.ToString();
-                TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
-            }
-            myMediaElement.Source = new Uri(filePath);
-            myMediaElement.Play();
-        }
-
-        // Play the media.
+        // The Play method will begin the media if it is not currently active or 
+        // resume media if it is paused. This has no effect if the media is
+        // already running.
         void OnMouseDownPlayMedia(object sender, MouseButtonEventArgs args)
         {
-            // The Play method will begin the media if it is not currently active or 
-            // resume media if it is paused. This has no effect if the media is
-            // already running.
             myMediaElement.Play();
             ImagePlayMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_play_Yellow.png"));
-            // Initialize the MediaElement property values.
             InitializePropertyValues();
         }
         private void OnMouseUpPlayMedia(object sender, MouseButtonEventArgs e)
         {
             ImagePlayMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_play.png"));
+
+            ImagePlayMedia.Visibility = Visibility.Hidden;
+            ImagePauseMedia.Visibility = Visibility.Visible;
         }
-        // Pause the media.
+        // The Pause method pauses the media if it is currently running.
+        // The Play method can be used to resume.
         void OnMouseDownPauseMedia(object sender, MouseButtonEventArgs args)
         {
-            // The Pause method pauses the media if it is currently running.
-            // The Play method can be used to resume.
             myMediaElement.Pause();
             ImagePauseMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_pause_Yellow.png"));
         }
         private void OnMouseUpPauseMedia(object sender, MouseButtonEventArgs e)
         {
             ImagePauseMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_pause.png"));
+
+            ImagePlayMedia.Visibility = Visibility.Visible;
+            ImagePauseMedia.Visibility = Visibility.Hidden;
         }
-        // Stop the media.
-        void OnMouseDownStopMedia(object sender, MouseButtonEventArgs args)
+        // The StopReplay method stops and resets the media to be played from
+        // the beginning.
+        void OnMouseDownStopAndReplayMedia(object sender, MouseButtonEventArgs args)
         {
-            // The Stop method stops and resets the media to be played from
-            // the beginning.
             dispatcherTimer.Stop();
             myMediaElement.Stop();
             timelineSlider.Value = 0;
@@ -115,42 +88,73 @@ namespace MusicPlayerWPF
             TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
             ImageStopMedia.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_replay_Yellow.png"));
 
-            if (FileName.Length > 0)
+            if (FileName != null)
             {
-                String FilePath = FileName[0].ToString();
-
-                if (CheckMP3Extension(FilePath))
+                if (FileName.Length > 0)
                 {
-                    TagLib.File tagFile = TagLib.File.Create(FilePath);
-                    try
-                    {
-                        MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
-                        System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
-                        ms.Seek(0, SeekOrigin.Begin);
-                        BitmapImage bitmap = new BitmapImage();
-                        bitmap.BeginInit();
-                        bitmap.StreamSource = ms;
-                        bitmap.EndInit();
-                        // Create a System.Windows.Controls.Image control
-                        System.Windows.Controls.Image img = new System.Windows.Controls.Image();
-                        img.Source = bitmap;
-                        TrackCover.Source = img.Source;
-                    }
-                    catch (Exception ee)
-                    {
-                        string errorNoCover = ee.Data.ToString();
-                        TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
-                    }
-                    myMediaElement.Source = new Uri(FilePath);
-                    myMediaElement.Play();
+                    String FilePath = FileName[0].ToString();
 
+                    if (CheckMP3Extension(FilePath))
+                    {
+                        TagLib.File tagFile = TagLib.File.Create(FilePath);
+                        try
+                        {
+                            MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
+                            System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
+                            ms.Seek(0, SeekOrigin.Begin);
+                            BitmapImage bitmap = new BitmapImage();
+                            bitmap.BeginInit();
+                            bitmap.StreamSource = ms;
+                            bitmap.EndInit();
+                            System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+                            img.Source = bitmap;
+                            TrackCover.Source = img.Source;
+                        }
+                        catch (Exception ee)
+                        {
+                            string errorNoCover = ee.Data.ToString();
+                            TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
+                        }
+                        myMediaElement.Source = new Uri(FilePath);
+                        myMediaElement.Play();
+                    }
+                    else
+                    {
+                        MessageBox.Show("you are choose wrong file");
+                    }
                 }
-                else
-                {
-                    MessageBox.Show("you are choose wrong file");
-                }
+                ImagePauseMedia.Visibility = Visibility.Visible;
+                ImagePlayMedia.Visibility = Visibility.Hidden;
             }
-
+            else{
+                string filePath = "O:/Pas Oriona/Magiczne Brzemia/Nowy folder (13)/21 Savage - a lot ft. J. Cole.mp3";
+                TagLib.File tagFile = TagLib.File.Create(filePath);
+                try
+                {
+                    MemoryStream ms = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
+                    System.Drawing.Image image = System.Drawing.Image.FromStream(ms);
+                    ms.Seek(0, SeekOrigin.Begin);
+                    BitmapImage bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.StreamSource = ms;
+                    bitmap.EndInit();
+                    System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+                    img.Source = bitmap;
+                    TrackCover.Source = img.Source;
+                    Artist.Text = "Artist: " + tagFile.Tag.Performers[0].ToString();
+                    TrackTitle.Text = "Title: " + tagFile.Tag.Title.ToString();
+                    AlbumTitle.Text = "Album: " + tagFile.Tag.Album.ToString();
+                }
+                catch (Exception ee)
+                {
+                    string errorNoCover = ee.Data.ToString();
+                    TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
+                }
+                myMediaElement.Source = new Uri(filePath);
+                myMediaElement.Play();
+                ImagePauseMedia.Visibility = Visibility.Visible;
+                ImagePlayMedia.Visibility = Visibility.Hidden;
+            }
         }
         private void OnMouseUpStopMedia(object sender, MouseButtonEventArgs e)
         {
@@ -170,13 +174,12 @@ namespace MusicPlayerWPF
                 if (myMediaElement.NaturalDuration.HasTimeSpan)
                 {
                     timelineSlider.Maximum = myMediaElement.NaturalDuration.TimeSpan.TotalSeconds;
-                    //timelineSlider.SmallChange = 1;
-                    //timelineSlider.LargeChange = Math.Min(10, myMediaElement.NaturalDuration.TimeSpan.Seconds / 10);
                     CurrentPosition.Text = String.Format("00:00:00");
                     Duration.Text = String.Format("{0:00}:{1:00}:{2:00}",
                         myMediaElement.NaturalDuration.TimeSpan.Hours,
                         myMediaElement.NaturalDuration.TimeSpan.Minutes,
                         myMediaElement.NaturalDuration.TimeSpan.Seconds);
+                    ImageEditTrack.Visibility = Visibility.Visible;
                 }
                 dispatcherTimer.Start();
             }
@@ -192,6 +195,9 @@ namespace MusicPlayerWPF
             myMediaElement.Source = null;
             timelineSlider.Value = 0;
             TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
+
+            ImagePauseMedia.Visibility = Visibility.Hidden;
+            ImagePlayMedia.Visibility = Visibility.Hidden;
         }
         private void sliderPosition_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -200,12 +206,10 @@ namespace MusicPlayerWPF
                 String.Format("{0:00}:{1:00}:{2:00}",
                 ts.Hours, ts.Minutes, ts.Seconds);
         }
-
         private void sliderPosition_DragStarted(object sender, DragStartedEventArgs e)
         {
             isDragging = true;
         }
-
         private void sliderPosition_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             isDragging = false;
@@ -222,7 +226,6 @@ namespace MusicPlayerWPF
             // their respective slider controls.
             myMediaElement.Volume = (double)volumeSlider.Value;
         }
-        String[] FileName;
         private void Window_Drop(object sender, DragEventArgs e)
         {
             try
@@ -269,6 +272,7 @@ namespace MusicPlayerWPF
                     }
                 }
                 e.Handled = true;
+                ImagePlayMedia.Visibility = Visibility.Hidden;
             }
             catch (Exception ex)
             {
@@ -295,6 +299,16 @@ namespace MusicPlayerWPF
                 throw new Exception(ex.Message);
             }
             return Flag;
+        }
+        private void OnMouseDownEditTrack(object sender, MouseButtonEventArgs e)
+        {
+            ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit_Yellow.png"));
+
+        }
+        private void OnMouseUpEditTrack(object sender, MouseButtonEventArgs e)
+        {
+            ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit.png"));
+
         }
 
     }

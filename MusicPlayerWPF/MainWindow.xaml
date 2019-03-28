@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicPlayerWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Background="Black">
-    <Grid>
+        Title="MainWindow" Height="529" Width="900" Background="Black">
+    <Grid Margin="-1,0,1,0">
 
         <MediaElement Source="media\numbers.wmv" x:Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill" 
         MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" Margin="496,10,18,273"/>
-        <TextBlock Foreground="Red" Margin="147,0,0,43" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left"  ><Run Text="Volume"/></TextBlock>
+        <TextBlock Foreground="Red" Margin="147,0,0,41" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left"  ><Run Text="Volume"/></TextBlock>
         <Slider x:Name="volumeSlider" VerticalAlignment="Bottom" ValueChanged="ChangeMediaVolume" 
-        Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="147,0,0,5" HorizontalAlignment="Left" Height="38"/>
+        Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="147,0,0,0" HorizontalAlignment="Left" Height="38"/>
         <Image x:Name="TrackCover" Height="250" Margin="22,-38,0,207" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="250"/>
         <TextBlock Name="TrackTitle"
                        Margin="5,0,0,183"
@@ -20,7 +20,6 @@
         <TextBlock Name="Artist"
                        Margin="5,0,0,165"
                        VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="280" HorizontalAlignment="Left" >Artist:</TextBlock>
-
         <TextBlock Name="AlbumTitle"
                        Margin="5,0,0,145"
                        VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="280" HorizontalAlignment="Left">Album:</TextBlock>
@@ -35,11 +34,11 @@
         <Slider x:Name="timelineSlider" Margin="5,0,0,77" 
                     ValueChanged="sliderPosition_ValueChanged"
                     Thumb.DragStarted="sliderPosition_DragStarted"
-                    Thumb.DragCompleted="sliderPosition_DragCompleted" Width="280" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-        <Button Content="Play" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="Button_Click"/>
-        <Image x:Name="ImagePlayMedia" Source="Images/UI_play.png"  MouseUp="OnMouseUpPlayMedia" MouseDown="OnMouseDownPlayMedia"  Stretch="Uniform"  Margin="89,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
-        <Image x:Name="ImagePauseMedia" Source="Images/UI_pause.png" MouseUp="OnMouseUpPauseMedia" MouseDown="OnMouseDownPauseMedia" Stretch="Uniform"  Margin="47,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
-        <Image x:Name="ImageStopMedia" Source="Images/UI_replay.png"  MouseUp="OnMouseUpStopMedia" MouseDown="OnMouseDownStopMedia"  Stretch="Uniform"  Margin="5,0,0,25"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="40" />
+                    Thumb.DragCompleted="sliderPosition_DragCompleted" Width="280" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Red" BorderBrush="Black" Foreground="Black" OpacityMask="Black"/>
+        <Image x:Name="ImagePlayMedia" Visibility="Hidden" Source="Images/UI_play.png"  MouseUp="OnMouseUpPlayMedia" MouseDown="OnMouseDownPlayMedia"  Stretch="Uniform"  Margin="50,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
+        <Image x:Name="ImagePauseMedia" Visibility="Hidden" Source="Images/UI_pause.png" MouseUp="OnMouseUpPauseMedia" MouseDown="OnMouseDownPauseMedia" Stretch="Uniform"  Margin="50,0,0,25" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
+        <Image x:Name="ImageStopMedia" Source="Images/UI_replay.png"  MouseUp="OnMouseUpStopMedia" MouseDown="OnMouseDownStopAndReplayMedia"  Stretch="Uniform"  Margin="5,0,0,25"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
         <Image HorizontalAlignment="Left" Source="Images/UI_upload.png" Drop="Window_Drop" AllowDrop="true" Height="100" Margin="320,0,0,25" VerticalAlignment="Bottom" Width="100"/>
+        <Image x:Name="ImageEditTrack" Visibility="Hidden" Source="Images/UI_edit.png"  MouseUp="OnMouseUpEditTrack" MouseDown="OnMouseDownEditTrack"  Stretch="Uniform"  Margin="272,0,0,457"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="33" Height="28" />
     </Grid>
 </Window>

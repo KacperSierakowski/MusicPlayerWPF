@@ -70,6 +70,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="EditTrackWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -77,6 +81,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EditTrackWindow.xaml.cs">
+      <DependentUpon>EditTrackWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -161,6 +168,9 @@
     <Resource Include="Images\UI_replay.png" />
     <Resource Include="Images\UI_replay_Yellow.png" />
     <Resource Include="Images\UI_upload.png" />
+    <Resource Include="Images\information.png" />
+    <Resource Include="Images\UI_edit.png" />
+    <Resource Include="Images\UI_edit_Yellow.png" />
     <Content Include="Models\MusicPlayerModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MusicPlayerModel.Context.cs</LastGenOutput>
