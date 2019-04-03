@@ -126,7 +126,8 @@ namespace MusicPlayerWPF
                 ImagePauseMedia.Visibility = Visibility.Visible;
                 ImagePlayMedia.Visibility = Visibility.Hidden;
             }
-            else{
+            else
+            {
                 string filePath = "O:/Pas Oriona/Magiczne Brzemia/Nowy folder (13)/21 Savage - a lot ft. J. Cole.mp3";
                 TagLib.File tagFile = TagLib.File.Create(filePath);
                 try
@@ -226,6 +227,8 @@ namespace MusicPlayerWPF
             // their respective slider controls.
             myMediaElement.Volume = (double)volumeSlider.Value;
         }
+
+        String FilePath;
         private void Window_Drop(object sender, DragEventArgs e)
         {
             try
@@ -234,8 +237,7 @@ namespace MusicPlayerWPF
 
                 if (FileName.Length > 0)
                 {
-                    String FilePath = FileName[0].ToString();
-
+                    FilePath = FileName[0].ToString();
                     if (CheckMP3Extension(FilePath))
                     {
                         TagLib.File tagFile = TagLib.File.Create(FilePath);
@@ -252,19 +254,23 @@ namespace MusicPlayerWPF
                             System.Windows.Controls.Image img = new System.Windows.Controls.Image();
                             img.Source = bitmap;
                             TrackCover.Source = img.Source;
-                            Artist.Text = "Artist: " + tagFile.Tag.Performers[0].ToString();
-                            TrackTitle.Text = "Title: " + tagFile.Tag.Title.ToString();
-                            AlbumTitle.Text = "Album: " + tagFile.Tag.Album.ToString();
-
                         }
                         catch (Exception ee)
                         {
                             string errorNoCover = ee.Data.ToString();
                             TrackCover.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/TrackCoverUknown.png"));
                         }
+                        try
+                        {
+                            Artist.Text = "" + tagFile.Tag.Performers[0].ToString();
+                            TrackTitle.Text = "" + tagFile.Tag.Title.ToString();
+                            AlbumTitle.Text = "" + tagFile.Tag.Album.ToString();
+                        } catch (Exception ee)
+                        {
+                            string errorNoArtist = ee.Data.ToString();
+                        }
                         myMediaElement.Source = new Uri(FilePath);
                         myMediaElement.Play();
-
                     }
                     else
                     {
@@ -273,12 +279,15 @@ namespace MusicPlayerWPF
                 }
                 e.Handled = true;
                 ImagePlayMedia.Visibility = Visibility.Hidden;
+                ImagePauseMedia.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
+
+
         private Boolean CheckMP3Extension(String FilePath)
         {
             Boolean Flag = false;
@@ -303,11 +312,18 @@ namespace MusicPlayerWPF
         private void OnMouseDownEditTrack(object sender, MouseButtonEventArgs e)
         {
             ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit_Yellow.png"));
+            EditTrackWindow EditTrackWindow = new EditTrackWindow();
+            EditTrackWindow.TrackTitle.Text = TrackTitle.Text;
+            EditTrackWindow.AlbumTitle.Text = AlbumTitle.Text;
+            EditTrackWindow.Artist.Text = Artist.Text;
+            EditTrackWindow.TrackCover.Source = TrackCover.Source;
+            EditTrackWindow.FilePathBlock.Text = FilePath;
+            EditTrackWindow.ShowDialog();
+            ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit.png"));
 
         }
         private void OnMouseUpEditTrack(object sender, MouseButtonEventArgs e)
         {
-            ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit.png"));
 
         }
 

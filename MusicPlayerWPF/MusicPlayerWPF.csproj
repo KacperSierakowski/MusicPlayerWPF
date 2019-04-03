@@ -168,9 +168,11 @@
     <Resource Include="Images\UI_replay.png" />
     <Resource Include="Images\UI_replay_Yellow.png" />
     <Resource Include="Images\UI_upload.png" />
-    <Resource Include="Images\information.png" />
     <Resource Include="Images\UI_edit.png" />
     <Resource Include="Images\UI_edit_Yellow.png" />
+    <Resource Include="Images\UI_accept.png" />
+    <Resource Include="Images\UI_accept_Yellow.png" />
+    <Resource Include="Images\UI_information.png" />
     <Content Include="Models\MusicPlayerModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MusicPlayerModel.Context.cs</LastGenOutput>

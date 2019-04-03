@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicPlayerWPF"
         mc:Ignorable="d"
-        Title="EditTrackWindow" Height="450" Width="800" Background="Black">
+        Title="EditTrackWindow" Height="450" Width="300" Background="Black">
     <Grid Margin="-4,0,4,0">
-        <Image HorizontalAlignment="Left" Source="Images/UI_upload.png" AllowDrop="true" Height="135" Margin="21,0,0,218" VerticalAlignment="Bottom" Width="150"/>
+        <Image x:Name="TrackCover" HorizontalAlignment="Left" Source="Images/UI_upload.png"  AllowDrop="true" Height="164" Margin="21,0,0,218" VerticalAlignment="Bottom" Width="159"/>
 
         <TextBlock 
                        Margin="5,0,0,180"
@@ -15,16 +15,18 @@
         <TextBlock 
                        Margin="5,0,0,152"
                        VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="50" HorizontalAlignment="Left" >Artist:</TextBlock>
-        <TextBlock 
+        <TextBlock
                        Margin="5,0,0,126"
                        VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="50" HorizontalAlignment="Left">Album:</TextBlock>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="60,216,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="60,244,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="60,270,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
-        <Image x:Name="AcceptEdditing" Source="Images/UI_replay.png" Stretch="Uniform"  Margin="41,0,0,67"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
-        <Image x:Name="CancelEdditing" Source="Images/UI_replay.png" Stretch="Uniform"  Margin="100,0,0,67"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
+        <TextBox x:Name="TrackTitle"  HorizontalAlignment="Left" Height="23" Margin="60,216,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="Artist"  HorizontalAlignment="Left" Height="23" Margin="60,244,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBox  x:Name="AlbumTitle" HorizontalAlignment="Left" Height="23" Margin="60,270,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <Image x:Name="ImageAcceptButton" MouseUp="OnMouseUpAccept" MouseDown="OnMouseDownAccept"  Source="Images/UI_accept.png" Stretch="Uniform"  Margin="138,0,0,68"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
+        <TextBlock x:Name="FilePathBlock" 
+            Margin="5,0,0,39"
+            VerticalAlignment="Bottom" Visibility="Hidden" Foreground="Red" Height="20" Width="50" HorizontalAlignment="Left"><Run Text=""/></TextBlock>
 
-        
+
     </Grid>
-    
+
 </Window>

@@ -5,24 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MusicPlayerWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="529" Width="900" Background="Black">
+        Title="MainWindow" Height="529" Width="500" Background="Black">
     <Grid Margin="-1,0,1,0">
 
         <MediaElement Source="media\numbers.wmv" x:Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill" 
-        MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" Margin="496,10,18,273"/>
+        MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" Margin="420,10,72,273"/>
         <TextBlock Foreground="Red" Margin="147,0,0,41" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left"  ><Run Text="Volume"/></TextBlock>
         <Slider x:Name="volumeSlider" VerticalAlignment="Bottom" ValueChanged="ChangeMediaVolume" 
         Minimum="0" Maximum="1" Value="0.5" Width="70" Margin="147,0,0,0" HorizontalAlignment="Left" Height="38"/>
         <Image x:Name="TrackCover" Height="250" Margin="22,-38,0,207" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="250"/>
         <TextBlock Name="TrackTitle"
-                       Margin="5,0,0,183"
-                       VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="280" HorizontalAlignment="Left" >Track:</TextBlock>
+                       Margin="60,0,0,183"
+                       VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="225" HorizontalAlignment="Left" ></TextBlock>
         <TextBlock Name="Artist"
-                       Margin="5,0,0,165"
-                       VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="280" HorizontalAlignment="Left" >Artist:</TextBlock>
+                       Margin="60,0,0,165"
+                       VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="225" HorizontalAlignment="Left" ></TextBlock>
         <TextBlock Name="AlbumTitle"
-                       Margin="5,0,0,145"
-                       VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="280" HorizontalAlignment="Left">Album:</TextBlock>
+                       Margin="60,0,0,145"
+                       VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="225" HorizontalAlignment="Left"></TextBlock>
         <TextBlock Name="CurrentPosition"
                        Margin="5,0,0,107"
                        VerticalAlignment="Bottom" Foreground="Red" Height="25" HorizontalAlignment="Left">00:00:00</TextBlock>
@@ -40,5 +40,14 @@
         <Image x:Name="ImageStopMedia" Source="Images/UI_replay.png"  MouseUp="OnMouseUpStopMedia" MouseDown="OnMouseDownStopAndReplayMedia"  Stretch="Uniform"  Margin="5,0,0,25"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="42" Height="42" />
         <Image HorizontalAlignment="Left" Source="Images/UI_upload.png" Drop="Window_Drop" AllowDrop="true" Height="100" Margin="320,0,0,25" VerticalAlignment="Bottom" Width="100"/>
         <Image x:Name="ImageEditTrack" Visibility="Hidden" Source="Images/UI_edit.png"  MouseUp="OnMouseUpEditTrack" MouseDown="OnMouseDownEditTrack"  Stretch="Uniform"  Margin="272,0,0,457"  HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="33" Height="28" />
+        <TextBlock x:Name="TrackTitle_Copy"
+            Margin="10,0,0,182"
+            VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="40" HorizontalAlignment="Left" ><Run Text="Track:"/></TextBlock>
+        <TextBlock x:Name="Artist_Copy"
+            Margin="10,0,0,165"
+            VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="40" HorizontalAlignment="Left" ><Run Text="Artist:"/></TextBlock>
+        <TextBlock x:Name="AlbumTitle_Copy"
+            Margin="10,0,0,145"
+            VerticalAlignment="Bottom" Foreground="Red" Height="20" Width="40" HorizontalAlignment="Left"><Run Text="Album:"/></TextBlock>
     </Grid>
 </Window>
