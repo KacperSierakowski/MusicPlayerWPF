@@ -91,36 +91,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\AlbumArtists.cs">
-      <DependentUpon>MusicPlayerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Albums.cs">
-      <DependentUpon>MusicPlayerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Artists.cs">
-      <DependentUpon>MusicPlayerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\MusicPlayerModel.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MusicPlayerModel.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\MusicPlayerModel.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MusicPlayerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\MusicPlayerModel.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MusicPlayerModel.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="Models\TrackArtists.cs">
-      <DependentUpon>MusicPlayerModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Models\Tracks.cs">
-      <DependentUpon>MusicPlayerModel.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Models\Album.cs" />
+    <Compile Include="Models\Artist.cs" />
+    <Compile Include="Models\ArtistAlbums.cs" />
+    <Compile Include="Models\ArtistTracks.cs" />
+    <Compile Include="Models\MusicPlayerDB.cs" />
+    <Compile Include="Models\Track.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -138,13 +114,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EntityDeploy Include="Models\MusicPlayerModel.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>MusicPlayerModel.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="Models\MusicPlayerModel.edmx.diagram">
-      <DependentUpon>MusicPlayerModel.edmx</DependentUpon>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -173,16 +142,6 @@
     <Resource Include="Images\UI_accept.png" />
     <Resource Include="Images\UI_accept_Yellow.png" />
     <Resource Include="Images\UI_information.png" />
-    <Content Include="Models\MusicPlayerModel.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MusicPlayerModel.Context.cs</LastGenOutput>
-      <DependentUpon>MusicPlayerModel.edmx</DependentUpon>
-    </Content>
-    <Content Include="Models\MusicPlayerModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>MusicPlayerModel.edmx</DependentUpon>
-      <LastGenOutput>MusicPlayerModel.cs</LastGenOutput>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

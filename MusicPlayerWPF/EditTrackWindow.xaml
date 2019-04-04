@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="EditTrackWindow" Height="450" Width="300" Background="Black">
     <Grid Margin="-4,0,4,0">
-        <Image x:Name="TrackCover" HorizontalAlignment="Left" Source="Images/UI_upload.png"  AllowDrop="true" Height="164" Margin="21,0,0,218" VerticalAlignment="Bottom" Width="159"/>
+        <Image x:Name="TrackCover" HorizontalAlignment="Left" Source="Images/UI_upload.png" Drop="Cover_Drop" AllowDrop="true" Height="164" Margin="21,0,0,218" VerticalAlignment="Bottom" Width="159"/>
 
         <TextBlock 
                        Margin="5,0,0,180"
