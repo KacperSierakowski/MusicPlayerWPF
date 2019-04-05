@@ -355,16 +355,13 @@ namespace MusicPlayerWPF
             {
                 EditTrackTitle.Text = tagFile.Tag.Title.ToString();
             }
+            if (tagFile.Tag.AlbumArtists[0] != null)
+            {
+                EditArtistAlbum.Text = tagFile.Tag.AlbumArtists[0].ToString();
+            }
             OriginalTrackCover.Source = TrackCover.Source;
-            //EditTrackWindow.TrackTitle.Text = TrackTitle.Text;
-            //EditTrackWindow.AlbumTitle.Text = AlbumTitle.Text;
-            //EditTrackWindow.Artist.Text = Artist.Text;
-            //EditTrackWindow.TrackCover.Source = TrackCover.Source;
-            //EditTrackWindow.FilePathBlock.Text = FilePath.ToString();
-            //EditTrackWindow.ShowDialog();
-            //ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit.png"));
         }
-        bool SomethingWasDropped = false;
+        private bool SomethingWasDropped = false;
         private void Cover_Drop(object sender, DragEventArgs e)
         {
             try
@@ -448,12 +445,24 @@ namespace MusicPlayerWPF
                 }
                 catch (Exception ee)
                 {
-                    string errorData = "Błąd przy dodawaniu nazwy ALBUMU! " + ee.Data.ToString();
+                    string errorData = "Błąd przy dodawaniu nazwy OKŁADKI! " + ee.Data.ToString();
                     MessageBox.Show(errorData);
                 }
             }
         }
-
+        private void EditArtistOfAnAlbum(TagLib.File tagFile, string newArtistOfAnAlbum)
+        {
+            try
+            {
+                tagFile.Tag.AlbumArtists[0] = newArtistOfAnAlbum;
+                tagFile.Save();
+            }
+            catch (Exception ee)
+            {
+                string errorData = "Błąd przy dodawaniu wykonawcy ALBUMU! " + ee.Data.ToString();
+                MessageBox.Show(errorData);
+            }
+        }
         #endregion
         #region Accept changes of a track
         private void EditImageAcceptButton_MouseUp(object sender, MouseButtonEventArgs e)
@@ -472,6 +481,7 @@ namespace MusicPlayerWPF
             EditTitleOfATrack(tagFile, EditTrackTitle.Text.ToString());
             EditAlbumTitleOfATrack(tagFile, EditAlbumTitle.Text.ToString());
             EditCoverOfATrack(tagFile, CoverFilePath);
+            EditArtistOfAnAlbum(tagFile, EditArtistAlbum.Text.ToString());
             try
             {
                 Artist.Text = EditArtist.Text.ToString();
@@ -519,43 +529,88 @@ namespace MusicPlayerWPF
         private void AddTrack(TagLib.File tagFile, string filePath)
         {
             Models.Track track = new Models.Track();
+            Models.Track trackc = new Models.Track();
             track.FilePath = filePath;
             track.Title = tagFile.Tag.Title.ToString();
-            Album albumc = db.Albums.First(d => d.Title == tagFile.Tag.Album.ToString());
-            if (albumc!=null)
+            try
             {
-                ArtistAlbums artist =  albumc.ArtistAlbums.Where(d => d.AlbumID.Equals(albumc.AlbumID)).First(s => s.Artist.Equals(tagFile.Tag.Performers[0]));
-                if (artist!=null)
+                trackc = db.Tracks.Where(d => d.FilePath.Equals(filePath)).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+            }
+            if (trackc == null)
+            {
+                Album albumc = new Album();
+                try
+                {
+                    albumc = db.Albums.Where(d => d.Title.Contains(tagFile.Tag.Album.ToString())).FirstOrDefault();
+                }
+                catch (Exception)
+                {
+                }
+                Artist artistc = new Artist();
+                try
+                {
+                    artistc = db.Artists.Where(d => d.Name.Contains(tagFile.Tag.Performers[0].ToString())).FirstOrDefault();
+                }
+                catch (Exception)
+                {
+                }
+                if (albumc != null)
                 {
                     track.AlbumID = albumc.AlbumID;
                 }
                 else
                 {
-
+                    int albumId = 1;
+                    Models.Album album = new Models.Album();
+                    if (tagFile.Tag.Album!=null)
+                    {
+                        album.Title = tagFile.Tag.Album.ToString();
+                        AddAlbumGetIdOfLatRecord(album, out albumId);
+                        track.AlbumID = albumId;
+                    }
+                    else
+                    {
+                        track.AlbumID = albumId;
+                    }
+                }
+                if (artistc != null)
+                {
+                    AddArtist();
+                }
+                else
+                {
+                }
+                try
+                {
+                    db.Tracks.Add(track);
+                    db.SaveChanges();
+                }
+                catch (Exception ee)
+                {
+                    string errorAddingTrackToDatabase = "Błąd przy dodawaniu nowej piosenki do bazy danych! " + ee.Data.ToString();
+                    MessageBox.Show(errorAddingTrackToDatabase);
                 }
             }
             else
             {
-                int albumId = 1;
-                Models.Album album = new Models.Album();
-                AddAlbum(album,out albumId);
-                track.AlbumID = albumId;
+                MessageBox.Show("Plik istnieje w bazie danych! ");
             }
+        }
+        private void AddAlbumGetIdOfLatRecord(Album newAlbum, out int albumId)
+        {
             try
             {
-                db.Tracks.Add(track);
+                db.Albums.Add(newAlbum);
                 db.SaveChanges();
             }
             catch (Exception ee)
             {
-                string errorAddingTrackToDatabase = "Błąd przy dodawaniu nowej piosenki do bazy danych! " + ee.Data.ToString();
+                string errorAddingTrackToDatabase = "Błąd przy dodawaniu nowego albumu do bazy danych! " + ee.Data.ToString();
                 MessageBox.Show(errorAddingTrackToDatabase);
             }
-        }
-        private void AddAlbum(Album newAlbum,out int albumId)
-        {
-            db.Albums.Add(newAlbum);
-            db.SaveChanges();
             albumId = newAlbum.AlbumID;
         }
         private void AddArtist()
