@@ -49,6 +49,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Controls.Ribbon" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -92,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Album.cs" />
+    <Compile Include="Models\AlbumListView.cs" />
     <Compile Include="Models\Artist.cs" />
     <Compile Include="Models\ArtistAlbums.cs" />
     <Compile Include="Models\ArtistTracks.cs" />

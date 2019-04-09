@@ -297,7 +297,7 @@ namespace MusicPlayerWPF
                         myMediaElement.Source = new Uri(FilePath);
                         myMediaElement.Play();
 
-                        AddTrack(tagFile, FilePath);
+                        AddToDatabase(tagFile, FilePath);
 
                     }
                     else
@@ -524,65 +524,51 @@ namespace MusicPlayerWPF
             ImageFileUploadByDrop.Visibility = Visibility.Visible;
         }
         #endregion
-        #region Add to database
+        #region Album list
 
-        private void AddTrack(TagLib.File tagFile, string filePath)
+        #endregion
+        #region Add to database
+        private void AddToDatabase(TagLib.File tagFile, string filePath)
         {
             Models.Track track = new Models.Track();
-            Models.Track trackc = new Models.Track();
-            track.FilePath = filePath;
-            track.Title = tagFile.Tag.Title.ToString();
             try
             {
-                trackc = db.Tracks.Where(d => d.FilePath.Equals(filePath)).FirstOrDefault();
+                track = db.Tracks.Where(d => d.FilePath.Equals(filePath)).FirstOrDefault();
             }
             catch (Exception)
             {
+                MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy Track istenieje! ");
             }
-            if (trackc == null)
+
+            int artistId = 1, albumId = 1;
+            if (track == null)//Track nie istenieje
             {
-                Album albumc = new Album();
-                try
-                {
-                    albumc = db.Albums.Where(d => d.Title.Contains(tagFile.Tag.Album.ToString())).FirstOrDefault();
-                }
-                catch (Exception)
-                {
-                }
-                Artist artistc = new Artist();
-                try
-                {
-                    artistc = db.Artists.Where(d => d.Name.Contains(tagFile.Tag.Performers[0].ToString())).FirstOrDefault();
-                }
-                catch (Exception)
-                {
-                }
-                if (albumc != null)
-                {
-                    track.AlbumID = albumc.AlbumID;
-                }
-                else
-                {
-                    int albumId = 1;
-                    Models.Album album = new Models.Album();
-                    if (tagFile.Tag.Album!=null)
-                    {
-                        album.Title = tagFile.Tag.Album.ToString();
-                        AddAlbumGetIdOfLatRecord(album, out albumId);
-                        track.AlbumID = albumId;
-                    }
-                    else
-                    {
-                        track.AlbumID = albumId;
-                    }
-                }
-                if (artistc != null)
-                {
-                    AddArtist();
-                }
-                else
-                {
-                }
+                Models.Track track2 = new Models.Track();
+                CheckIfAlbumExistAddIfNot(tagFile, track2, out albumId);
+                CheckIfArtitExistAddIfNot(tagFile, track2, out artistId);
+                track2.FilePath = FilePath;
+                track2.Title = tagFile.Tag.Title.ToString();
+                CheckIfTrackExistAddIfNot(track2);
+                AddConnectionBetweenArtistAndTrack(artistId, track2.TrackID);
+                AddConnectionBetweenArtistAndAlbum(artistId, albumId);
+            }
+            else
+            {
+                MessageBox.Show("Plik istnieje w bazie danych! ");
+                CheckIfAlbumExistAddIfNot(tagFile, track, out albumId);
+                CheckIfArtitExistAddIfNot(tagFile, track, out artistId);
+                AddConnectionBetweenArtistAndTrack(artistId, track.TrackID);
+                AddConnectionBetweenArtistAndAlbum(artistId, albumId);
+            }
+        }
+        private void CheckIfTrackExistAddIfNot(Models.Track track)
+        {
+            if (db.Tracks.Where(d => d.FilePath.Equals(track.FilePath)).FirstOrDefault() != null)
+            {
+                MessageBox.Show("Plik istnieje!");
+            }
+            else
+            {
                 try
                 {
                     db.Tracks.Add(track);
@@ -594,12 +580,40 @@ namespace MusicPlayerWPF
                     MessageBox.Show(errorAddingTrackToDatabase);
                 }
             }
+        }
+        private void CheckIfAlbumExistAddIfNot(TagLib.File tagFile, Models.Track track,out int albumId)
+        {
+            Album album = new Album();
+            try
+            {
+                album = db.Albums.Where(d => d.Title.Equals(tagFile.Tag.Album.ToString())).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy Album istenieje! ");
+            }
+            if (album != null)
+            {
+                track.AlbumID = album.AlbumID;
+                albumId= album.AlbumID;
+            }
             else
             {
-                MessageBox.Show("Plik istnieje w bazie danych! ");
+                if (tagFile.Tag.Album != null)
+                {
+                    Album album2 = new Album();
+                    album2.Title = tagFile.Tag.Album.ToString();
+                    AddAlbumAndGetIdOfLatRecord(album2, out albumId);
+                    track.AlbumID = albumId;
+                }
+                else
+                {
+                    albumId = 1;//ID==1 means Without Album
+                    track.AlbumID = albumId;
+                }
             }
         }
-        private void AddAlbumGetIdOfLatRecord(Album newAlbum, out int albumId)
+        private void AddAlbumAndGetIdOfLatRecord(Album newAlbum, out int albumId)
         {
             try
             {
@@ -613,11 +627,133 @@ namespace MusicPlayerWPF
             }
             albumId = newAlbum.AlbumID;
         }
-        private void AddArtist()
+        private void CheckIfArtitExistAddIfNot(TagLib.File tagFile, Models.Track track, out int artistId)
         {
+            Artist artist = new Artist();
+            try
+            {
+                string tmpArtist= tagFile.Tag.Performers[0].ToString();
+                artist = db.Artists.Where(d => d.Name.Contains(tmpArtist))
+                      .FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy Artysta istenieje! " + e.ToString());
+            }
+            if (artist != null)
+            {
+                artistId = artist.ArtistID;
+            }
+            else
+            {
+                Artist artist2 = new Artist();
+                if (tagFile.Tag.Performers[0]!=null)
+                {
+                    artist2.Name = tagFile.Tag.Performers[0];
+                    AddArtistAddGetIdOfLatRecord(artist2, out artistId);
+                }
+                else
+                {
+                    artist2.Name = "BRAK";
+                    AddArtistAddGetIdOfLatRecord(artist2, out artistId);
+                }
+            }
+        }
+        private void AddArtistAddGetIdOfLatRecord(Artist newArtist, out int artistId)
+        {
+            try
+            {
+                db.Artists.Add(newArtist);
+                db.SaveChanges();
+            }
+            catch (Exception ee)
+            {
+                string errorAddingTrackToDatabase = "Błąd przy dodawaniu nowego artysty do bazy danych! " + ee.Data.ToString();
+                MessageBox.Show(errorAddingTrackToDatabase);
+            }
+            artistId = newArtist.ArtistID;
+        }
+        private void AddConnectionBetweenArtistAndTrack(int artistId,int trackId)
+        {
+            ArtistTracks artistTracks = new ArtistTracks();
+            try
+            {
+                artistTracks = db.ArtistTracks.Where(d => d.ArtistID.Equals(artistId)).Where(g => g.TrackID.Equals(trackId)).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy połączenie w ArtistTrack istenieje! ");
+            }
+            if (artistTracks == null)
+            {
+                ArtistTracks artistTracks2 = new ArtistTracks();
+                artistTracks2.ArtistID = artistId;
+                artistTracks2.TrackID = trackId;
+                try
+                {
+                    db.ArtistTracks.Add(artistTracks2);
+                    db.SaveChanges();
+                }
+                catch (Exception ee)
+                {
+                    string errorAddingTrackToDatabase = "Błąd przy dodawaniu połączeń między piosenką, a artystom w bazie danych! " + ee.Data.ToString();
+                    MessageBox.Show(errorAddingTrackToDatabase);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Połączenie między Artystą, a Trackiem istnieje!");
+            }
+        }
+        private void AddConnectionBetweenArtistAndAlbum(int artistId, int albumId)
+        {
+            ArtistAlbums artistAlbums = new ArtistAlbums();
+            try
+            {
+                artistAlbums = db.ArtistAlbums.Where(d => d.ArtistID.Equals(artistId)).Where(g => g.AlbumID.Equals(albumId)).FirstOrDefault();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy połączenie w ArtistAlbum istenieje! ");
+            }
+            if (artistAlbums==null)
+            {
+                ArtistAlbums artistAlbums2 = new ArtistAlbums();
+                artistAlbums2.ArtistID = artistId;
+                artistAlbums2.AlbumID = albumId;
 
+                try
+                {
+                    db.ArtistAlbums.Add(artistAlbums2);
+                    db.SaveChanges();
+                }
+                catch (Exception ee)
+                {
+                    string errorAddingTrackToDatabase = "Błąd przy dodawaniu połączeń między albumem, a artystom w bazie danych! " + ee.Data.ToString();
+                    MessageBox.Show(errorAddingTrackToDatabase);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Połączenie między Artystą, a Albumem istnieje!");
+            }
         }
 
         #endregion
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            MemoryStream memoryStream = new MemoryStream(tagFile.Tag.Pictures[0].Data.Data);
+            System.Drawing.Image image = System.Drawing.Image.FromStream(memoryStream);
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            BitmapImage bitmapImage = new BitmapImage();
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = memoryStream;
+            bitmapImage.EndInit();
+            Image imagee = new Image();
+            imagee.Source = bitmapImage;
+            AlbumsWrapPanel.Children.Add(imagee);
+
+        }
     }
 }

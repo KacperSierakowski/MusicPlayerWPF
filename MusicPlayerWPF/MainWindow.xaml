@@ -6,6 +6,37 @@
         xmlns:local="clr-namespace:MusicPlayerWPF"
         mc:Ignorable="d"
         Title="MainWindow" Height="530" Width="1020" Background="Black">
+    <Window.Resources>
+        <DataTemplate x:Key="PhotoTemplate">
+            <Grid Width="{Binding Width}"
+            Height="{Binding Height}"
+            Margin="0">
+                <Image HorizontalAlignment="Center"
+               Stretch="UniformToFill">
+                    <Image.Source>
+                        <BitmapImage DecodePixelHeight="200"
+                         UriSource="{Binding Thumbnail}" />
+                    </Image.Source>
+                </Image>
+                <Border VerticalAlignment="Bottom">
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="0,1">
+                            <GradientStop Offset="0" Color="Transparent" />
+                            <GradientStop Offset="1" Color="#33000000" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <TextBlock Margin="5,20,5,5"
+                     VerticalAlignment="Bottom"
+                     Text="{Binding Category}"
+                     Foreground="White" />
+                </Border>
+            </Grid>
+        </DataTemplate>
+        <Style TargetType="ListViewItem">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+    </Window.Resources>
     <Grid Margin="-1,0,1,0">
         <MediaElement Source="media\numbers.wmv" x:Name="myMediaElement" LoadedBehavior="Manual" UnloadedBehavior="Stop" Stretch="Fill" 
         MediaOpened="Element_MediaOpened" MediaEnded="Element_MediaEnded" Margin="973,13,10,467"/>
@@ -49,7 +80,16 @@
         </Border>
         <Grid Width="600" Margin="412,0,0,0"/>
 
+        
+        
+        <Grid Margin="412,0,0,0">
+            <Grid Margin="0,0,0,207">
+                <WrapPanel Name="AlbumsWrapPanel">
 
+                </WrapPanel>
+            </Grid>
+
+        </Grid>
         <Image x:Name="ImageFileUploadByDrop" HorizontalAlignment="Left" Source="Images/UI_upload.png" Drop="Window_Drop" AllowDrop="true" Height="100" Margin="320,0,0,10" VerticalAlignment="Bottom" Width="100"/>
 
         <Grid x:Name="editGrid" Visibility="Hidden"  Margin="412,0,0,105" HorizontalAlignment="Left" Width="284" Height="384" VerticalAlignment="Bottom">
@@ -78,7 +118,8 @@
 
 
         </Grid>
-
+        <Button Content="Button" HorizontalAlignment="Left" Margin="320,277,0,0" VerticalAlignment="Top" Width="74" Click="Button_Click"/>
+        
 
 
 

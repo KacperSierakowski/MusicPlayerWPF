@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicPlayerWPF.Models
 {
-    class Album
+    public class Album
     {
         [Key]
         public int AlbumID { get; set; }
