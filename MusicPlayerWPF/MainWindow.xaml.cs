@@ -252,14 +252,12 @@ namespace MusicPlayerWPF
         #region  AddFile to Player
         String FilePath;
         TagLib.File tagFile;
-        //EditTrackWindow EditTrackWindow = new EditTrackWindow();
 
         private void Window_Drop(object sender, DragEventArgs e)
         {
             try
             {
                 FileName = (String[])e.Data.GetData(DataFormats.FileDrop, true);
-
                 if (FileName.Length > 0)
                 {
                     FilePath = FileName[0].ToString();
@@ -292,13 +290,11 @@ namespace MusicPlayerWPF
                         catch (Exception ee)
                         {
                             string errorNoArtist = ee.Data.ToString();
-                            //MessageBox.Show("Brak Artysty! " + errorNoArtist);
+                            MessageBox.Show("Brak Artysty! " + errorNoArtist);
                         }
                         myMediaElement.Source = new Uri(FilePath);
                         myMediaElement.Play();
-
                         AddToDatabase(tagFile, FilePath);
-
                     }
                     else
                     {
@@ -336,13 +332,16 @@ namespace MusicPlayerWPF
         }
         #endregion
         #region Edit track
-
         String CoverFilePath;
         private void OnMouseDownEditTrack(object sender, MouseButtonEventArgs e)
         {
             HideAddFileWindowDropShowEditGrid();
             ImageEditTrack.Source = new BitmapImage(new Uri("O:/Pas Oriona/Kariera/repos/MusicPlayerWPF/MusicPlayerWPF/Images/UI_edit_Yellow.png"));
-
+            AddExistingMetadataFromFileToEditGrid();
+            OriginalTrackCover.Source = TrackCover.Source;
+        }
+        private void AddExistingMetadataFromFileToEditGrid()
+        {
             if (tagFile.Tag.Performers[0] != null)
             {
                 EditArtist.Text = tagFile.Tag.Performers[0].ToString();
@@ -359,8 +358,8 @@ namespace MusicPlayerWPF
             {
                 EditArtistAlbum.Text = tagFile.Tag.AlbumArtists[0].ToString();
             }
-            OriginalTrackCover.Source = TrackCover.Source;
         }
+
         private bool SomethingWasDropped = false;
         private void Cover_Drop(object sender, DragEventArgs e)
         {
@@ -401,7 +400,7 @@ namespace MusicPlayerWPF
             }
             catch (Exception ee)
             {
-                string errorData = "Błąd przy dodawaniu danych artysty! " + ee.Data.ToString();
+                string errorData = "Błąd przy dodawaniu danych artysty do pliku! " + ee.Data.ToString();
                 MessageBox.Show(errorData);
             }
         }
@@ -415,7 +414,7 @@ namespace MusicPlayerWPF
             }
             catch (Exception ee)
             {
-                string errorData = "Błąd przy dodawaniu nazwy piosenki! " + ee.Data.ToString();
+                string errorData = "Błąd przy dodawaniu nazwy piosenki do pliku! " + ee.Data.ToString();
                 MessageBox.Show(errorData);
             }
         }
@@ -429,7 +428,7 @@ namespace MusicPlayerWPF
             }
             catch (Exception ee)
             {
-                string errorData = "Błąd przy dodawaniu nazwy ALBUMU! " + ee.Data.ToString();
+                string errorData = "Błąd przy dodawaniu nazwy ALBUMU do pliku! " + ee.Data.ToString();
                 MessageBox.Show(errorData);
             }
         }
@@ -445,7 +444,7 @@ namespace MusicPlayerWPF
                 }
                 catch (Exception ee)
                 {
-                    string errorData = "Błąd przy dodawaniu nazwy OKŁADKI! " + ee.Data.ToString();
+                    string errorData = "Błąd przy dodawaniu OKŁADKI do pliku! " + ee.Data.ToString();
                     MessageBox.Show(errorData);
                 }
             }
@@ -459,9 +458,75 @@ namespace MusicPlayerWPF
             }
             catch (Exception ee)
             {
-                string errorData = "Błąd przy dodawaniu wykonawcy ALBUMU! " + ee.Data.ToString();
+                string errorData = "Błąd przy dodawaniu wykonawcy ALBUMU do pliku! " + ee.Data.ToString();
                 MessageBox.Show(errorData);
             }
+        }
+        #endregion
+        #region Edit database
+        private void EditDb(TagLib.File tagFile, string filePath, string newArtistOfATrack, string newAlbumTitle, string newTrackTitle, string newAlbumPerformer)
+        {
+            string tmpOldArtistName = tagFile.Tag.Performers[0];
+            string tmpOldAalbumTitle = tagFile.Tag.Album.ToString();
+            Models.Track track = db.Tracks.Where(p => p.FilePath.Equals(filePath)).FirstOrDefault();
+            Artist artist = db.Artists.Where(k => k.Name.Contains(tmpOldArtistName)).FirstOrDefault();
+            Album album = db.Albums.Where(k => k.Title.Contains(tmpOldAalbumTitle)).FirstOrDefault();
+
+            //Change title of a track in database
+            track.Title = newTrackTitle;
+            db.Entry(track).State = System.Data.Entity.EntityState.Modified;
+            db.SaveChanges();
+
+            //Delete old-existing artist of edited track
+            DeleteArtistOfATrackInDb(track, artist);
+            CheckIfArtitExistAddIfNot(tagFile, artistId: out int artistId);
+
+
+            if (album.Tracks.Count() > 1)
+            {
+                DeleteArtistAlbumConnectionFromArtistAlbumTable(album, artist);
+            }
+            else
+            {
+                DeleteAlbumOfATrackInDB(album, artist);
+            }
+
+            CheckIfAlbumExistAddIfNot(tagFile,  out albumId);
+            AddConnectionBetweenArtistAndTrackIfNotExist(artistId, track.TrackID);
+        }
+        private void DeleteAlbumOfATrackInDB(Album album, Artist artist)
+        {
+            //Check if this Album have more tracks
+            if (db.ArtistAlbums.Where(k => k.ArtistID.Equals(artist.ArtistID)).ToList().Count() > 1)
+            {
+                DeleteArtistAlbumConnectionFromArtistAlbumTable(album, artist);
+            }
+            else
+            {
+                db.Albums.Remove(album);
+            }
+        }
+        private void DeleteArtistAlbumConnectionFromArtistAlbumTable(Album album, Artist artist)
+        {
+            ArtistAlbums artistAlbums = db.ArtistAlbums.Where(k => k.AlbumID.Equals(album.AlbumID)).Where(o => o.ArtistID.Equals(artist.ArtistID)).FirstOrDefault();
+            db.ArtistAlbums.Remove(artistAlbums);
+        }
+        private void DeleteArtistOfATrackInDb(Models.Track track, Artist artist)
+        {
+            //Check if this Artist have more tracks
+            if (db.ArtistTracks.Where(k => k.ArtistID.Equals(artist.ArtistID)).ToList().Count() > 1)
+            {
+                DeleteArtistTrackConnectionFromArtistTrackTable(track, artist);
+            }
+            else
+            {
+                db.Artists.Remove(artist);
+            }
+        }
+        private void DeleteArtistTrackConnectionFromArtistTrackTable(Models.Track track, Artist artist)
+        {
+            ArtistTracks artistTracks = db.ArtistTracks.Where(k => k.TrackID.Equals(track.TrackID)).Where(o => o.ArtistID.Equals(artist.ArtistID)).FirstOrDefault();
+            db.ArtistTracks.Remove(artistTracks);
         }
         #endregion
         #region Accept changes of a track
@@ -477,11 +542,16 @@ namespace MusicPlayerWPF
         {
             Element_MediaEnded(sender, e);
             System.Threading.Thread.Sleep(250);
+            EditArtistOfATrackInDb(tagFile, FilePath, EditArtist.Text.ToString());
             EditPerformersOfATrack(tagFile, EditArtist.Text.ToString());
+
             EditTitleOfATrack(tagFile, EditTrackTitle.Text.ToString());
+
             EditAlbumTitleOfATrack(tagFile, EditAlbumTitle.Text.ToString());
+
             EditCoverOfATrack(tagFile, CoverFilePath);
             EditArtistOfAnAlbum(tagFile, EditArtistAlbum.Text.ToString());
+
             try
             {
                 Artist.Text = EditArtist.Text.ToString();
@@ -498,7 +568,6 @@ namespace MusicPlayerWPF
             OnMouseUpStopAndReplayMedia(sender, e);
             ShowAddFileWindowDropHideEditGrid();
         }
-
         #endregion
         #region Hide/Show buttons
         private void HidePlayShowPauseButtons()
@@ -530,42 +599,22 @@ namespace MusicPlayerWPF
         #region Add to database
         private void AddToDatabase(TagLib.File tagFile, string filePath)
         {
-            Models.Track track = new Models.Track();
-            try
-            {
-                track = db.Tracks.Where(d => d.FilePath.Equals(filePath)).FirstOrDefault();
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy Track istenieje! ");
-            }
-
-            int artistId = 1, albumId = 1;
-            if (track == null)//Track nie istenieje
-            {
-                Models.Track track2 = new Models.Track();
-                CheckIfAlbumExistAddIfNot(tagFile, track2, out albumId);
-                CheckIfArtitExistAddIfNot(tagFile, track2, out artistId);
-                track2.FilePath = FilePath;
-                track2.Title = tagFile.Tag.Title.ToString();
-                CheckIfTrackExistAddIfNot(track2);
-                AddConnectionBetweenArtistAndTrack(artistId, track2.TrackID);
-                AddConnectionBetweenArtistAndAlbum(artistId, albumId);
-            }
-            else
-            {
-                MessageBox.Show("Plik istnieje w bazie danych! ");
-                CheckIfAlbumExistAddIfNot(tagFile, track, out albumId);
-                CheckIfArtitExistAddIfNot(tagFile, track, out artistId);
-                AddConnectionBetweenArtistAndTrack(artistId, track.TrackID);
-                AddConnectionBetweenArtistAndAlbum(artistId, albumId);
-            }
+            int artistId = 1, albumId = 1, trackId = 1;
+            Models.Track track2 = new Models.Track();
+            CheckIfAlbumExistAddIfNot(tagFile, track2, out albumId);
+            CheckIfArtitExistAddIfNot(tagFile, out artistId);
+            track2.FilePath = FilePath;
+            track2.Title = tagFile.Tag.Title.ToString();
+            CheckIfTrackExistAddIfNot(track2, out trackId);
+            AddConnectionBetweenArtistAndTrackIfNotExist(artistId, trackId);
+            AddConnectionBetweenArtistAndAlbumIfNotExist(artistId, albumId);
         }
-        private void CheckIfTrackExistAddIfNot(Models.Track track)
+        private void CheckIfTrackExistAddIfNot(Models.Track track, out int trackId)
         {
             if (db.Tracks.Where(d => d.FilePath.Equals(track.FilePath)).FirstOrDefault() != null)
             {
                 MessageBox.Show("Plik istnieje!");
+                trackId = db.Tracks.Where(d => d.FilePath.Equals(track.FilePath)).FirstOrDefault().TrackID;
             }
             else
             {
@@ -579,9 +628,10 @@ namespace MusicPlayerWPF
                     string errorAddingTrackToDatabase = "Błąd przy dodawaniu nowej piosenki do bazy danych! " + ee.Data.ToString();
                     MessageBox.Show(errorAddingTrackToDatabase);
                 }
+                trackId = track.TrackID;
             }
         }
-        private void CheckIfAlbumExistAddIfNot(TagLib.File tagFile, Models.Track track,out int albumId)
+        private void CheckIfAlbumExistAddIfNot(TagLib.File tagFile, Models.Track track, out int albumId)
         {
             Album album = new Album();
             try
@@ -595,7 +645,7 @@ namespace MusicPlayerWPF
             if (album != null)
             {
                 track.AlbumID = album.AlbumID;
-                albumId= album.AlbumID;
+                albumId = album.AlbumID;
             }
             else
             {
@@ -627,14 +677,13 @@ namespace MusicPlayerWPF
             }
             albumId = newAlbum.AlbumID;
         }
-        private void CheckIfArtitExistAddIfNot(TagLib.File tagFile, Models.Track track, out int artistId)
+        private void CheckIfArtitExistAddIfNot(TagLib.File tagFile, out int artistId)
         {
             Artist artist = new Artist();
             try
             {
-                string tmpArtist= tagFile.Tag.Performers[0].ToString();
-                artist = db.Artists.Where(d => d.Name.Contains(tmpArtist))
-                      .FirstOrDefault();
+                string tmpArtist = tagFile.Tag.Performers[0].ToString();
+                artist = db.Artists.Where(d => d.Name.Contains(tmpArtist)).FirstOrDefault();
             }
             catch (Exception e)
             {
@@ -647,7 +696,7 @@ namespace MusicPlayerWPF
             else
             {
                 Artist artist2 = new Artist();
-                if (tagFile.Tag.Performers[0]!=null)
+                if (tagFile.Tag.Performers[0] != null)
                 {
                     artist2.Name = tagFile.Tag.Performers[0];
                     AddArtistAddGetIdOfLatRecord(artist2, out artistId);
@@ -673,7 +722,7 @@ namespace MusicPlayerWPF
             }
             artistId = newArtist.ArtistID;
         }
-        private void AddConnectionBetweenArtistAndTrack(int artistId,int trackId)
+        private void AddConnectionBetweenArtistAndTrackIfNotExist(int artistId, int trackId)
         {
             ArtistTracks artistTracks = new ArtistTracks();
             try
@@ -705,7 +754,7 @@ namespace MusicPlayerWPF
                 MessageBox.Show("Połączenie między Artystą, a Trackiem istnieje!");
             }
         }
-        private void AddConnectionBetweenArtistAndAlbum(int artistId, int albumId)
+        private void AddConnectionBetweenArtistAndAlbumIfNotExist(int artistId, int albumId)
         {
             ArtistAlbums artistAlbums = new ArtistAlbums();
             try
@@ -716,12 +765,11 @@ namespace MusicPlayerWPF
             {
                 MessageBox.Show("Coś poszło nie tak przy przeszukiwnaiu czy połączenie w ArtistAlbum istenieje! ");
             }
-            if (artistAlbums==null)
+            if (artistAlbums == null)
             {
                 ArtistAlbums artistAlbums2 = new ArtistAlbums();
                 artistAlbums2.ArtistID = artistId;
                 artistAlbums2.AlbumID = albumId;
-
                 try
                 {
                     db.ArtistAlbums.Add(artistAlbums2);
@@ -738,7 +786,6 @@ namespace MusicPlayerWPF
                 MessageBox.Show("Połączenie między Artystą, a Albumem istnieje!");
             }
         }
-
         #endregion
 
         private void Button_Click(object sender, RoutedEventArgs e)
